@@ -1,3 +1,5 @@
+> **Cập nhật triển khai 21/10/2026:** Phần mềm hiện dùng PHP Laravel, JavaScript và MySQL; đã có mua hàng online, tài khoản khách, VietQR, theo dõi giao hàng do cửa hàng cập nhật, chat theo danh mục, hết hạn QR, quên mật khẩu, email có hàng đợi, đánh giá đã mua và yêu cầu đổi/trả. Các mốc phạm vi bên dưới là kế hoạch ban đầu. Hồ sơ triển khai mới nhất: `shoe-store/docs/PROJECT.md`, `CUSTOMER_EXPERIENCE.md` và `docs/defense/`.
+
 # KẾ HOẠCH ĐỒ ÁN CHUYÊN NGÀNH
 ## Đề tài: Xây dựng website quản lý cửa hàng bán giày
 

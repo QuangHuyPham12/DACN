@@ -1,0 +1,3 @@
+@extends('layouts.shop')
+@section('title','Phiên làm việc đã hết hạn · SOLE')
+@section('content')<section class="empty empty-cart"><span class="eyebrow">419 / PHIÊN LÀM VIỆC HẾT HẠN</span><h1 style="margin:20px 0">Làm mới để tiếp tục hành trình.</h1><p>Vui lòng mở lại trang và thử lại. Nếu bạn vừa đặt hàng, kiểm tra lịch sử trong tài khoản trước khi tạo đơn mới.</p><a class="btn spaced" href="{{ route('account.index') }}">Kiểm tra tài khoản & đơn hàng</a><a class="btn secondary spaced" href="{{ route('shop.cart') }}">Mở lại giỏ hàng</a></section>@endsection

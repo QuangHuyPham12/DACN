@@ -1,0 +1,3 @@
+@extends('layouts.shop')
+@section('title','Không tìm thấy trang · SOLE')
+@section('content')<section class="empty empty-cart"><span class="eyebrow">404 / A DIFFERENT PATH</span><h1 style="margin:20px 0">Có lẽ bạn đã rẽ nhầm.</h1><p>Trang hoặc sản phẩm này không còn tồn tại. Cùng tìm một đôi giày khác nhé.</p><a class="btn spaced" href="{{ route('shop.index') }}">Về bộ sưu tập <x-icon name="arrow"/></a></section>@endsection

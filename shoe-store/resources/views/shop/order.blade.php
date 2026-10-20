@@ -1,0 +1,34 @@
+@extends('layouts.shop')
+@section('title','Theo dõi '.$order->code.' · SOLE')
+@push('head')<link rel="stylesheet" href="{{ asset('assets/payment.css') }}">@endpush
+@section('content')
+@php
+    $steps = ['pending'=>'Đặt hàng','confirmed'=>'Xác nhận','packing'=>'Chuẩn bị','shipping'=>'Đang giao','delivered'=>'Đã giao'];
+    $current = array_search($order->fulfillment_status === 'delivery_failed' ? 'shipping' : $order->fulfillment_status, array_keys($steps), true);
+    $lastEvent = $order->events->last();
+    $nextMessage = match($order->fulfillment_status) {
+        'pending' => 'Cửa hàng sẽ liên hệ để xác nhận thông tin và lựa chọn của bạn.',
+        'confirmed' => 'Đơn đã được xác nhận và giữ hàng. Đôi giày đang chờ chuẩn bị.',
+        'packing' => 'Cửa hàng đang kiểm tra và đóng gói trước khi bàn giao vận chuyển.',
+        'shipping' => 'Đơn đã được bàn giao vận chuyển. Theo dõi cập nhật mới nhất bên dưới.',
+        'delivered' => 'Đã ghi nhận giao hàng thành công. Cảm ơn bạn đã chọn SOLE.',
+        'delivery_failed' => 'Lần giao gần nhất chưa thành công. Cửa hàng sẽ liên hệ để hẹn giao lại hoặc nhận hàng hoàn.',
+        default => 'Xem lịch sử bên dưới để biết cập nhật gần nhất.',
+    };
+@endphp
+<div class="shop-content order-tracking">
+    <a class="back-link" href="{{ route('shop.catalog') }}">← Tiếp tục khám phá</a>
+    <div class="tracking-header"><span class="tracking-icon"><x-icon :name="$order->status==='cancelled' ? 'close' : 'bag'"/></span><span class="eyebrow">HÀNH TRÌNH ĐÔI GIÀY CỦA BẠN</span><h1>Đơn hàng {{ $order->code }}</h1><p>Lưu liên kết riêng này để theo dõi. Liên kết chứa thông tin nhận hàng; chỉ chia sẻ với người bạn tin cậy.</p><span class="badge {{ $order->status }}">{{ $order->status==='pending' ? 'Đang xử lý' : $order->status_label }}</span> <span class="badge">{{ $order->payment_label }}</span><div class="tracking-actions"><a class="btn secondary" href="{{ route('shop.order',$order->tracking_token) }}">↻ Cập nhật giao hàng</a><a class="btn" href="{{ route('shop.payment',$order->tracking_token) }}">{{ $order->payment_method==='bank_transfer' && !$order->payment && $order->status==='pending' ? 'Xem QR thanh toán' : 'Chi tiết thanh toán' }} <x-icon name="arrow"/></a></div></div>
+    @if($order->status !== 'cancelled')
+        <section class="shipment-highlight" aria-label="Tiến trình giao hàng hiện tại"><div><span class="eyebrow">ĐƠN HÀNG ĐANG Ở BƯỚC</span><h2>{{ $order->fulfillment_label }}</h2><p>{{ $nextMessage }}</p>@if($order->payment_method==='bank_transfer' && !$order->payment)<p><strong>Đơn QR đang chờ xác nhận tiền trước khi giao.</strong></p>@endif</div><dl><div><dt>Cập nhật gần nhất</dt><dd>{{ ($lastEvent?->created_at ?? $order->created_at)->format('d/m/Y H:i') }}</dd></div><div><dt>Vị trí / điểm xử lý mới nhất</dt><dd>{{ $order->delivery_location ?: 'Chưa có cập nhật vị trí' }}</dd></div><div><dt>Đơn vị vận chuyển</dt><dd>{{ $order->shipping_carrier ?: 'Cửa hàng sẽ cập nhật khi bàn giao' }}</dd></div><div><dt>Mã vận đơn</dt><dd>{{ $order->tracking_number ?: 'Chưa được cấp' }}</dd></div></dl></section>
+        <div class="delivery-steps" aria-label="Các bước giao hàng">@foreach($steps as $key=>$label)@php($position = array_search($key,array_keys($steps),true))<div class="{{ $current !== false && $position <= $current ? 'reached' : '' }} {{ $position === $current ? 'current' : '' }}" @if($position === $current) aria-current="step" @endif><span>{{ $current !== false && $position < $current ? '✓' : $loop->iteration }}</span><small>{{ $label }}</small></div>@endforeach</div>
+        <p class="tracking-update-note">Tiến trình và vị trí do cửa hàng cập nhật theo thông tin thực tế. Chưa kết nối định vị trực tiếp với đơn vị vận chuyển.</p>
+    @else
+        <div class="shipment-exception"><strong>Đơn hàng đã hủy.</strong> Không chuyển thêm tiền. @if($order->payment){{ $order->payment->refunded_at ? 'Đã xác nhận hoàn toàn bộ tiền vào '.$order->payment->refunded_at->format('d/m/Y H:i').'.' : 'Cửa hàng cần hoàn toàn bộ '.number_format($order->payment->amount,0,',','.').'đ đã thu. Trạng thái hiện tại: chờ hoàn tiền.' }}@endif</div>
+    @endif
+    @if($order->fulfillment_status === 'delivery_failed' && $order->status !== 'cancelled')<div class="shipment-exception">Giao hàng chưa thành công. Hàng vẫn được giữ cho đơn trong khi cửa hàng xử lý phương án tiếp theo.</div>@endif
+    <div class="split"><section class="card"><div class="card-head"><h2>Đôi giày bạn đã chọn</h2></div><div class="table-wrap"><table><thead><tr><th>Sản phẩm</th><th>SL</th><th>Thành tiền</th></tr></thead><tbody>@foreach($order->items as $item)<tr><td><strong>{{ $item->product_name }}</strong><small class="block">{{ $item->variant_label }}</small></td><td>{{ $item->quantity }}</td><td>{{ number_format($item->quantity*$item->unit_price,0,',','.') }}đ</td></tr>@endforeach</tbody></table></div><div class="card-body">@include('partials.order-totals')</div></section><div class="stack"><section class="card"><div class="card-head"><h2>Thông tin nhận hàng</h2></div><div class="card-body"><dl class="detail-list"><div><dt>Người nhận</dt><dd>{{ $order->customer_name }}</dd></div><div><dt>Điện thoại</dt><dd>{{ $order->customer_phone }}</dd></div><div><dt>Địa chỉ</dt><dd>{{ $order->shipping_address }}</dd></div><div><dt>Thanh toán</dt><dd>{{ $order->payment_label }}</dd></div></dl>@if($order->note)<p class="order-note spaced">Ghi chú: {{ $order->note }}</p>@endif</div></section><section class="card"><div class="card-head"><div><h2>Hành trình đơn hàng</h2><p>Cập nhật mới nhất ở trên cùng</p></div></div><ol class="order-timeline">@forelse($order->events->reverse() as $event)<li><strong>{{ $event->description }}</strong><small>{{ $event->created_at->format('d/m/Y H:i') }}</small></li>@empty<li><strong>Đơn hàng đã được ghi nhận</strong><small>{{ $order->created_at->format('d/m/Y H:i') }}</small></li>@endforelse</ol></section></div></div>
+    @if($order->saleReturn)<div class="info-note spaced"><strong>Đã trả hàng · Hoàn tiền hàng {{ number_format($order->saleReturn->refund_amount,0,',','.') }}đ</strong><p>Ngày ghi nhận: {{ $order->saleReturn->created_at->format('d/m/Y H:i') }}. Phí giao hàng không nằm trong số tiền hoàn.</p></div>@elseif($order->status==='pending' && !$order->stock_reserved)<div class="info-note spaced">Đơn COD đang chờ cửa hàng xác nhận. Hàng sẽ được giữ sau bước xác nhận; cửa hàng sẽ liên hệ nếu không còn đủ hàng.</div>@endif
+    @if($order->status==='pending' && $order->fulfillment_status==='pending' && !$order->payment && !$order->transfer_reported_at)<form class="tracking-cancel" method="post" action="{{ route('shop.cancel',$order->tracking_token) }}" data-confirm="Bạn muốn hủy đơn này và giải phóng hàng giữ chỗ?">@csrf<button class="remove-item">Tôi muốn hủy đơn này</button></form>@endif
+</div>
+@endsection

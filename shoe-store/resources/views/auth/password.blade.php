@@ -1,0 +1,4 @@
+@extends('layouts.admin')
+@section('content')
+<div class="card" style="max-width:560px"><div class="card-body"><form method="post" action="{{ route('password.update') }}">@csrf @method('PUT')<div class="field"><label for="current_password">Mật khẩu hiện tại</label><input id="current_password" name="current_password" type="password" required autocomplete="current-password"></div><div class="field"><label for="password">Mật khẩu mới</label><input id="password" name="password" type="password" minlength="8" required autocomplete="new-password"><small>Tối thiểu 8 ký tự, gồm chữ và số.</small></div><div class="field"><label for="password_confirmation">Nhập lại mật khẩu mới</label><input id="password_confirmation" name="password_confirmation" type="password" required autocomplete="new-password"></div><button class="btn">Cập nhật mật khẩu</button></form></div></div>
+@endsection

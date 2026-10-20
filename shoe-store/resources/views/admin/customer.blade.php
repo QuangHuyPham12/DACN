@@ -1,0 +1,3 @@
+@extends('layouts.admin')
+@section('actions')<a class="btn secondary" href="{{ route('data.index','customers') }}">← Khách hàng</a>@endsection
+@section('content')<section class="card" style="margin-bottom:24px"><div class="card-body"><h2>Thông tin liên hệ</h2><p class="muted spaced">{{ $customer->phone ?: 'Chưa có số điện thoại' }} · {{ $customer->email ?: 'Chưa có email' }}</p><p class="muted">{{ $customer->address }}</p></div></section><section class="card"><div class="card-head"><h2>Lịch sử mua hàng</h2></div>@include('admin.order-table'){{ $orders->links('vendor.pagination.store') }}</section>@endsection

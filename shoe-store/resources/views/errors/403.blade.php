@@ -1,0 +1,3 @@
+@extends('layouts.shop')
+@section('title','Không có quyền truy cập · SOLE')
+@section('content')<section class="empty empty-cart"><span class="eyebrow">403 / KHÔNG CÓ QUYỀN TRUY CẬP</span><h1 style="margin:20px 0">Khu vực dành cho tài khoản được cấp quyền.</h1><p>Liên hệ quản trị viên nếu bạn cần sử dụng chức năng này.</p><a class="btn spaced" href="{{ route('shop.index') }}">Về cửa hàng <x-icon name="arrow"/></a></section>@endsection
